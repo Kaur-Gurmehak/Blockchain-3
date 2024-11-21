@@ -1,5 +1,4 @@
 
-
 ## K Framework Rule
 // K Rule for Access Control 
 rule [withdraw-access-control]:
@@ -22,9 +21,9 @@ rule [withdraw-access-control]:
   ## Vulnerable Code
 
     // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+    pragma solidity ^0.8.0;
 
-contract VulnerableWallet {
+    contract VulnerableWallet {
     address public owner;
     uint256 public balance;
 
@@ -40,5 +39,5 @@ contract VulnerableWallet {
     function deposit() public payable {
         balance += msg.value;
     }
-}
+    }
 

@@ -1,10 +1,18 @@
 
 ## K Framework Rule
-// K Rule for Access Control 
+### K Rule for Access Control
+## Rule: withdraw-access-control
+
+This rule ensures that only the contract owner can execute the `withdraw` function and verifies the state accordingly.
+
+```markdown
+
 rule [withdraw-access-control]:
     <k>
+      // Specification of withdraw function call
       call(withdraw(AMOUNT:Int)) 
       => 
+      // Access control check
       if (CALLER =/=Int OWNER) 
       then throw(AccessControlError("Only owner can withdraw"))
       else proceed 
@@ -17,6 +25,8 @@ rule [withdraw-access-control]:
     // Preconditions
     requires AMOUNT <=Int BALANCE  // Ensure sufficient balance
     ensures BALANCE >=Int 0         // Ensure non-negative balance after withdrawal
+```
+
 
   ## Vulnerable Code
 

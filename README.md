@@ -1,4 +1,13 @@
 
+## Introduction
+The provided content addresses the following aspects of the question:
+
+- Rule in the K Framework: The rule withdraw-access-control ensures access control by checking if the caller (CALLER) is the owner (OWNER). If not, it throws an AccessControlError, thus enforcing that only the owner can call the withdraw function. The rule also updates the contract state by ensuring the balance is sufficient and remains non-negative after the withdrawal.
+
+- Vulnerable Solidity Code: This section provides a simple example of a vulnerable contract where anyone can call the withdraw function due to the lack of access control. It shows the potential security risk.
+
+- Improved Solidity Contract: This improved version implements the access control logic directly within the contract using a modifier called onlyOwner. This modifier checks if the caller is the owner before allowing the withdrawal. The contract also emits events for deposit and withdrawal actions to facilitate formal verification.
+
 ## K Framework Rule
 ### K Rule for Access Control
 ### Rule: withdraw-access-control
@@ -27,7 +36,14 @@ rule [withdraw-access-control]:
     ensures BALANCE >=Int 0         // Ensure non-negative balance after withdrawal
 ```
 
+The rule specifies:-
 
+- Formally specifies access control for withdraw()
+- Checks if caller matches owner
+- Verifies sufficient balance
+- Ensures valid state transitions
+
+```markdown
   ## Vulnerable Code
 
     // SPDX-License-Identifier: MIT
@@ -50,6 +66,10 @@ rule [withdraw-access-control]:
         balance += msg.value;
     }
     }
+```
+- The contract has a basic withdraw() function that currently lacks proper access control
+- owner is set to the contract deployer in the constructor
+- Anyone can currently call withdraw(), which is a security vulnerability
 
  ## Improved Solidity Contract
 
@@ -62,7 +82,6 @@ rule [withdraw-access-control]:
     address public owner;
     uint256 public balance;
 
-    // Events for formal verification tracking
     event Withdrawal(address indexed caller, uint256 amount);
     event Deposit(address indexed depositor, uint256 amount);
 
@@ -72,7 +91,6 @@ rule [withdraw-access-control]:
 
     // Modifier implementing K Framework access control logic
     modifier onlyOwner() {
-        // Directly implements K rule's access control check
         if (msg.sender != owner) {
             revert AccessControlError("Only owner can withdraw");
         }
@@ -81,26 +99,24 @@ rule [withdraw-access-control]:
 
     // Withdraw function with formal verification considerations
     function withdraw(uint256 amount) public onlyOwner {
-        // Preconditions matching K rule
+        // Preconditions
         require(amount <= balance, "Insufficient balance");
         
         // State transition as specified in K rule
         balance -= amount;
         
-        // Transfer funds
         payable(msg.sender).transfer(amount);
-        
-        // Event for verification tracking
         emit Withdrawal(msg.sender, amount);
     }
-
-    // Deposit function with verification event
     function deposit() public payable {
         balance += msg.value;
-        
-        // Event for tracking deposits
         emit Deposit(msg.sender, msg.value);
     }
     }
-    
+
+This solution provides:
+
+- Formal verification of owner-only access
+- Runtime protection against unauthorized withdrawals
+- Ensures valid balance transitions
 
